@@ -1,8 +1,8 @@
 from haystack import Document, component, default_from_dict, default_to_dict
 from typing import List, Optional
+from deepcopy import copy
 import groq  
 import tiktoken
-
 def max_tokens(model):
     return 8192 if 'gpt-4' in model else 4096
 
