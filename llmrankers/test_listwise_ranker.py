@@ -1,64 +1,64 @@
 import os
 from haystack import Document
-from listwise import GroqRankLLMReranker  # Replace with actual module name
+from listwise import ListwiseRanker  
 
-def test_groq_reranker():
-    # Configuration
+def test_listwise_ranker():
+    # Configuration - use environment variables in production
     GROQ_API_KEY = "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"
     MODEL_NAME = "mixtral-8x7b-32768"
     
-    # Sample documents (should be related to test query)
+    # More distinct test documents for better ranking differentiation
     documents = [
         Document(
-            content="Football",
-            meta={"source": "wiki"}
+            content="Association football, commonly known as soccer, is a team sport played between two teams of 11 players.",
+            meta={"source": "wiki", "year": 2023}
         ),
         Document(
-            content="Football",
-            meta={"source": "textbook"}
+            content="American football is a sport played by two teams of 11 players on a rectangular field with goalposts at each end.",
+            meta={"source": "textbook", "year": 2020}
         ),
         Document(
-            content="Tennis",
-            meta={"source": "research_paper"}
+            content="Tennis is a racket sport played individually against a single opponent or between two teams of two players each.",
+            meta={"source": "sports_db", "year": 2022}
         ),
         Document(
-            content="Cricket",
-            meta={"source": "tech_journal"}
+            content="The history of football extends back to ancient times with various traditional games involving kicking balls.",
+            meta={"source": "history_archive", "year": 2021}
         )
     ]
     
-    # Create reranker component
-    reranker = GroqRankLLMReranker(
+    # Initialize the ranker component
+    reranker = ListwiseRanker(
         model_name=MODEL_NAME,
         api_key=GROQ_API_KEY,
         window_size=3,
         step_size=2,
         num_repeat=1
     )
-    print(reranker)
-    # Test query
-    query = "What is football?"
+    
+    # Test query with clear intent
+    query = "Explain the rules of association football (soccer)"
     
     try:
-        # Run reranking
+        # Execute ranking
         result = reranker.run(query=query, documents=documents)
         reranked_docs = result["documents"]
         
-        # Display results
-        print("\nOriginal order:")
+        # Display input/output comparison
+        print("\nOriginal documents:")
         for i, doc in enumerate(documents):
-            print(f"[{i+1}] {doc.content[:50]}...")
+            print(f"[{i+1}] {doc.meta['source']}: {doc.content[:45]}...")
             
-        print("\nReranked order:")
+        print("\nReranked results:")
         for i, doc in enumerate(reranked_docs):
-            print(f"[{i+1}] Score: {doc.score} | {doc.content[:50]}...")
+            print(f"[{i+1}] Score: {doc.score} | {doc.meta['source']}: {doc.content[:45]}...")
             
     except Exception as e:
-        print(f"Error occurred: {str(e)}")
-        print("Ensure you have:")
-        print("1. A valid Groq API key")
-        print("2. Installed required packages: pip install groq tiktoken")
-        print("3. Internet connection")
+        print(f"Error: {str(e)}")
+        print("Troubleshooting:")
+        print("- Verify GROQ_API_KEY is valid")
+        print("- Check network connection")
+        print("- Confirm package versions: pip install groq haystack")
 
 if __name__ == "__main__":
-    test_groq_reranker()
+    test_listwise_ranker()
